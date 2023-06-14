@@ -1,0 +1,95 @@
+html {
+	box-sizing: border-box;
+	font-size: 13px;
+}
+
+*,
+*:before,
+*:after {
+	box-sizing: inherit;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul {
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+canvas {
+	display: block;
+	margin-bottom: 10px;
+	border: 1px solid;
+	border-radius: 10px;
+}
+
+#hex {
+	width: 50px;
+	height: 30px;
+}
+
+#main-nav {
+    position: absolute;
+    left: 0;
+    height: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.material-symbols-outlined {
+	font-variation-settings:
+	'FILL' 0,
+	'wght' 300,
+	'GRAD' 0,
+	'opsz' 48
+}
+  
+.horizontal-list {
+	display: flex;
+	list-style: none;
+	padding: 0;
+}
+
+.horizontal-list li {
+	margin-right: 10px; /* Adjust the spacing between items */
+}
+
+/* Optionally center the items vertically */
+.horizontal-list i,
+.horizontal-list .icon {
+	display: flex;
+	align-items: center;
+}
+
+.list-container {
+	display: flex;
+}
+
+.horizontal-list i.codicon {
+	font-size: 24px; /* Adjust the font size as needed */
+	border: 1px solid #ffffff; /* Adjust the border style and color as needed */
+	padding: 4px; /* Adjust the padding as needed */
+}
+
+.horizontal-list input[type="color"] {
+	width: 40px; /* Adjust the width as needed */
+	height: 40px; /* Adjust the height as needed */
+  }
+
+/* TODO: remove check 
+ 		upload 
+		stroke size */
