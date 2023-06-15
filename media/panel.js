@@ -2,68 +2,83 @@ var painterElement = /** @type {HTMLCanvasElement} */ (document.getElementById("
 var context = painterElement.getContext('2d');
 var paint = false;
 var lastPos = {x: 0, y: 0};
-var /** @type {string} */mode = "Line";
+var /** @type {string} */mode = "Pen";
 // const drawingHistory = /** @type {(string | undefined)[]} */ ([]);
 var historyPointer = -1;
 const maxHistoryLength = 100;
 var /** @type {Shape} */ currentObject;
 var objectList = /** @type {(Shape)[]} */ ([]);
 var /** @type {Object.<String, any>} */ config = {
-	color: 'black',
+	color: "white",
+	lineWidth: 10,
+	globalCompositeOperation: "source-over",
+	lineCap: "round",
 };
 
-// /* initialization */
-// drawingHistory.push(context?.canvas.toDataURL());
-
-// saveCanvasState();
+const uploadButton = document.getElementById("image-upload");
+uploadButton?.addEventListener('change', handleImageUpload);
 
 function mousedown(/** @type {MouseEvent} */ e) {
 	// setPosition(e);
 	switch (mode) {
+		case "Pen":
+			currentObject = new LineList(getConfig());
+			break;
 		case "Line":
-			currentObject = new Line(config);
+			currentObject = new Line(getConfig());
 			break;
 		case "Circle":
-			currentObject = new Circle(config);
+			currentObject = new Circle(getConfig());
 			break;
 		case "Square":
-			currentObject = new Square(config);
+			currentObject = new Square(getConfig());
 			break;
+		case "Eraser":
+			currentObject = new Eraser(getConfig());
 		default:
 			break;
 	}
+	if (historyPointer + 1 != objectList.length) {
+		objectList.splice(historyPointer + 1);
+	}
+	objectList.push(currentObject);
+	historyPointer++;
+
 	currentObject.startPos.x = e.pageX - painterElement.offsetLeft;
 	currentObject.startPos.y = e.pageY - painterElement.offsetTop;
 }
 
 function mouseup(/** @type {MouseEvent} */ e) {
-	// setPosition(e)
-	objectList.push(currentObject);
-	// saveCanvasState()
+	currentObject.endPos.x = e.pageX - painterElement.offsetLeft;
+	currentObject.endPos.y = e.pageY - painterElement.offsetTop;
 }
 
 function mousemove(/** @type {MouseEvent} */ e) {
-	var color = /** @type {HTMLInputElement} */ (document.getElementById('hex'))?.value;
 	if (e.buttons != 1)
 		return;
-	currentObject.endPos.x = e.pageX - painterElement.offsetLeft;
-	currentObject.endPos.y = e.pageY - painterElement.offsetTop;
+	if (currentObject instanceof LineList) {
+		currentObject.endPos.x = e.pageX - painterElement.offsetLeft;
+		currentObject.endPos.y = e.pageY - painterElement.offsetTop;
+		const line = new Line(currentObject.config);
+		line.set(currentObject.startPos, currentObject.endPos);
+		currentObject.push(line);
+
+		currentObject.startPos.x = e.pageX - painterElement.offsetLeft;
+		currentObject.startPos.y = e.pageY - painterElement.offsetTop;
+	} else {
+		currentObject.endPos.x = e.pageX - painterElement.offsetLeft;
+		currentObject.endPos.y = e.pageY - painterElement.offsetTop;
+	}
+	
 	drawAllObjects();
 }
 
 function drawAllObjects() {
-	objectList.forEach((object) => {
-		object.draw(context);
-	})
-	currentObject.draw(context);
+	context?.clearRect(0, 0, context.canvas.width, context.canvas.height);
+	for (let i = 0; i < historyPointer + 1; ++i) {
+		objectList[i].draw(context);
+	}
 }
-
-function setPosition(/** @type {MouseEvent} */ e) {
-	lastPos.x = e.pageX;
-	lastPos.y = e.pageY;
-}
-
-// painterElement?.addEventListener('mousedown', setPosition)
 
 painterElement?.addEventListener('mousedown', mousedown)
 
@@ -72,32 +87,79 @@ painterElement?.addEventListener('mouseup', mouseup)
 painterElement?.addEventListener('mousemove', mousemove)
 
 document.getElementById("line")?.addEventListener('click', function(e) {
-	console.log('draw line');
+	mode = "Line";
 })
 
 document.getElementById("square")?.addEventListener('click', function(e) {
-	console.log('draw square');
+	mode = "Square";
 })
 
 document.getElementById("circle")?.addEventListener('click', function(e) {
-	console.log('draw circle');
+	mode = "Circle";
 })
 
 document.getElementById("pen")?.addEventListener('click', function(e) {
-	console.log('draw pen');
+	mode = "Pen"
 })
 
 document.getElementById("eraser")?.addEventListener('click', function(e) {
-	console.log('draw eraser');
+	mode = "Eraser"
+})
+
+document.getElementById("clear")?.addEventListener('click', function(e) {
+	clearCanvas();
+	drawAllObjects();
 })
 
 document.getElementById("download")?.addEventListener('click', function(e) {
-	console.log('draw download');
+	const downloadLink = document.createElement('a');
+	downloadLink.href = painterElement.toDataURL();
+	downloadLink.download = 'canvas_image.png';
+	downloadLink.click();
 })
 
-document.getElementById("upload")?.addEventListener('click', function(e) {
-	console.log('draw upload');
-})
+function getConfig() {
+	return {
+		color: /** @type {HTMLInputElement} */ (document.getElementById('hex'))?.value,
+		lineWidth: 10,
+		globalCompositeOperation: "source-over",
+		lineCap: "round",
+	}
+}
+
+/**
+ * @this {HTMLInputElement}
+ */
+function handleImageUpload() {
+	const file = this.files?.[0];
+	// Create a FileReader object
+	const reader = new FileReader();
+	if (file) {
+		reader.readAsDataURL(file);
+		// Set the onload event handler
+		reader.onload = function () {
+			// Create a new image element
+			const image = new Image();
+			// When the image is loaded, draw it on the canvas
+			image.onload = function () {
+				// Draw the image on the canvas
+				clearCanvas();
+				objectList.push(new ImageShape(getConfig(), image));
+				drawAllObjects();
+			};
+			// Set the source of the image to the uploaded file
+			if (typeof reader.result === 'string')
+				image.src = reader.result;
+		}
+	};
+  
+}
+
+function clearCanvas() {
+	objectList.splice(0, objectList.length);
+	historyPointer = -1;
+}
+
 
 // document.getElementById("clear")?.addEventListener('click', function(e) {
 // 	context?.clearRect(0, 0, context.canvas.width, context.canvas.height);
@@ -106,9 +168,9 @@ document.getElementById("upload")?.addEventListener('click', function(e) {
 // 	saveCanvasState();
 // })
 
-// document.getElementById("undo")?.addEventListener('click', undo)
+document.getElementById("undo")?.addEventListener('click', undo)
 
-// document.getElementById("redo")?.addEventListener('click', redo)
+document.getElementById("redo")?.addEventListener('click', redo)
 
 // function saveCanvasState() {
 // 	historyPointer++;
@@ -123,33 +185,19 @@ document.getElementById("upload")?.addEventListener('click', function(e) {
 // 	console.log('end save ', drawingHistory);
 // }
 
-// function undo() {
-// 	console.log('undo:', drawingHistory.length)
-// 	if (historyPointer > 0) {
-// 		const previousState = new Image();
-// 		previousState.src = /** @type string */ (drawingHistory[historyPointer - 1]);
-// 		previousState.onload = function () {
-// 			context?.clearRect(0, 0, context.canvas.width, context.canvas.height); 
-// 			context?.drawImage(previousState, 0, 0);
-// 		};
-// 		historyPointer--; // Remove the last canvas state
-// 	}
-// 	console.log('after undo:', drawingHistory.length)
-// }
+function undo() {
+	if (objectList.length > 0) {
+		historyPointer--;
+		drawAllObjects();
+	}
+}
 
-// function redo() {
-// 	console.log('redo:', drawingHistory.length)
-// 	if (historyPointer + 1 < drawingHistory.length) {
-// 		const previousState = new Image();
-// 		previousState.src = /** @type string */ (drawingHistory[historyPointer + 1]);
-// 		previousState.onload = function () {
-// 			context?.clearRect(0, 0, context?.canvas.width, context?.canvas.height);
-// 			context?.drawImage(previousState, 0, 0);
-// 		};
-// 		historyPointer++;
-// 	}
-// 	console.log('after redo:', drawingHistory.length)
-// }
+function redo() {
+	if (historyPointer + 1 < objectList.length) {
+		historyPointer++;
+		drawAllObjects();
+	}
+}
 
 // $('#painter').mousedown(function(e){
 // 	var mouseX = e.pageX - this.offsetLeft;

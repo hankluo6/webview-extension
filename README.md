@@ -33,6 +33,9 @@ Demonstrates VS Code's [webview API](https://code.visualstudio.com/api/extension
 
 Run the `Cat Coding: Start cat coding session` to create the webview.
 
+Drawing might change sometimes
+UI improve
+
 reference:
 https://github.com/shyamg91/web-paint/blob/master/app.js
 https://github.com/JonSteinn/Web-Paint/blob/master/assets/js/draw.js#L74

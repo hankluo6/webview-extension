@@ -170,12 +170,12 @@ class CatCodingPanel {
 		// Local path to main script run in the webview
 		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js');
 		const scriptPanelPathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'panel.js');
-		const scriptShapePathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'panel.js');
+		const scriptShapePathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'shape.js');
 
 		// And the uri we use to load this script in the webview
 		const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
 		const scriptPanelUri = webview.asWebviewUri(scriptPanelPathOnDisk);
-		const scriptShapePathOnUri = webview.asWebviewUri(scriptPanelPathOnDisk);
+		const scriptShapePathOnUri = webview.asWebviewUri(scriptShapePathOnDisk);
 
 		// Local path to css styles
 		const styleResetPath = vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css');
@@ -246,7 +246,10 @@ class CatCodingPanel {
 							</li>
 							<li>
 								<div class="icon" id="upload">
-									<i class="codicon codicon-arrow-circle-up"></i>
+									<label for="image-upload">
+										<i class="codicon codicon-arrow-circle-up"></i>
+										<input type="file" accept=".png,.jpeg;" id="image-upload">
+								  	</label>
 								</div>
 							</li>
 							<li>
