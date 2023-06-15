@@ -170,10 +170,12 @@ class CatCodingPanel {
 		// Local path to main script run in the webview
 		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js');
 		const scriptPanelPathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'panel.js');
+		const scriptShapePathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'panel.js');
 
 		// And the uri we use to load this script in the webview
 		const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
 		const scriptPanelUri = webview.asWebviewUri(scriptPanelPathOnDisk);
+		const scriptShapePathOnUri = webview.asWebviewUri(scriptPanelPathOnDisk);
 
 		// Local path to css styles
 		const styleResetPath = vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css');
@@ -279,6 +281,7 @@ class CatCodingPanel {
 				<canvas id="painter" width="720" height="400"></canvas>
 
 				<script nonce="${nonce}" src="${scriptUri}"></script>
+				<script nonce="${nonce}" src="${scriptShapePathOnUri}"></script>
 				<script nonce="${nonce}" src="${scriptPanelUri}"></script>
 			</body>
 			</html>`;
