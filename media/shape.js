@@ -113,8 +113,6 @@ class Eraser extends LineList {
 	* @param {Object.<String, any>} config
 	*/
 	constructor(config) {
-		config.globalCompositeOperation = "destination-out";
-		config.lineWidth = 20;
 		super(config);
 	}
 	/**

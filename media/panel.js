@@ -2,15 +2,15 @@ var painterElement = /** @type {HTMLCanvasElement} */ (document.getElementById("
 var context = painterElement.getContext('2d');
 var paint = false;
 var lastPos = {x: 0, y: 0};
-var /** @type {string} */mode = "Pen";
+var /** @type {string} */ mode = "Pen";
 // const drawingHistory = /** @type {(string | undefined)[]} */ ([]);
 var historyPointer = -1;
-const maxHistoryLength = 100;
+// const maxHistoryLength = 100;
 var /** @type {Shape} */ currentObject;
 var objectList = /** @type {(Shape)[]} */ ([]);
 var /** @type {Object.<String, any>} */ config = {
-	color: "white",
-	lineWidth: 10,
+	color: /** @type {HTMLInputElement} */ (document.getElementById('hex'))?.value, //TODO: when click change color, update it
+	lineWidth: /** @type {HTMLInputElement} */ (document.getElementById('stroke'))?.value,
 	globalCompositeOperation: "source-over",
 	lineCap: "round",
 };
@@ -18,22 +18,37 @@ var /** @type {Object.<String, any>} */ config = {
 const uploadButton = document.getElementById("image-upload");
 uploadButton?.addEventListener('change', handleImageUpload);
 
-function mousedown(/** @type {MouseEvent} */ e) {
-	// setPosition(e);
+const stroke = document.getElementById("stroke");
+const strokeLabel = document.getElementById("stroke-value-label");
+
+stroke?.addEventListener("input", () => {
+	if (strokeLabel)
+		strokeLabel.textContent = /** @type {HTMLInputElement} */ (stroke).value;
+});
+
+/**
+ * @param {MouseEvent} e
+ */
+function mousedown(e) {
 	switch (mode) {
 		case "Pen":
+			config.globalCompositeOperation = "source-over";
 			currentObject = new LineList(getConfig());
 			break;
 		case "Line":
+			config.globalCompositeOperation = "source-over";
 			currentObject = new Line(getConfig());
 			break;
 		case "Circle":
+			config.globalCompositeOperation = "source-over";
 			currentObject = new Circle(getConfig());
 			break;
 		case "Square":
+			config.globalCompositeOperation = "source-over";
 			currentObject = new Square(getConfig());
 			break;
 		case "Eraser":
+			config.globalCompositeOperation = "destination-out";
 			currentObject = new Eraser(getConfig());
 		default:
 			break;
@@ -48,12 +63,18 @@ function mousedown(/** @type {MouseEvent} */ e) {
 	currentObject.startPos.y = e.pageY - painterElement.offsetTop;
 }
 
-function mouseup(/** @type {MouseEvent} */ e) {
+/**
+ * @param {MouseEvent} e
+ */
+function mouseup(e) {
 	currentObject.endPos.x = e.pageX - painterElement.offsetLeft;
 	currentObject.endPos.y = e.pageY - painterElement.offsetTop;
 }
 
-function mousemove(/** @type {MouseEvent} */ e) {
+/**
+ * @param {MouseEvent} e
+ */
+function mousemove(e) {
 	if (e.buttons != 1)
 		return;
 	if (currentObject instanceof LineList) {
@@ -107,8 +128,9 @@ document.getElementById("eraser")?.addEventListener('click', function(e) {
 })
 
 document.getElementById("clear")?.addEventListener('click', function(e) {
-	clearCanvas();
-	drawAllObjects();
+	showConfirmationDialog()
+	// clearCanvas();
+	// drawAllObjects();
 })
 
 document.getElementById("download")?.addEventListener('click', function(e) {
@@ -121,8 +143,8 @@ document.getElementById("download")?.addEventListener('click', function(e) {
 function getConfig() {
 	return {
 		color: /** @type {HTMLInputElement} */ (document.getElementById('hex'))?.value,
-		lineWidth: 10,
-		globalCompositeOperation: "source-over",
+		lineWidth: /** @type {HTMLInputElement} */ (document.getElementById('stroke'))?.value,
+		globalCompositeOperation: config.globalCompositeOperation,
 		lineCap: "round",
 	}
 }
@@ -160,30 +182,9 @@ function clearCanvas() {
 	historyPointer = -1;
 }
 
-
-// document.getElementById("clear")?.addEventListener('click', function(e) {
-// 	context?.clearRect(0, 0, context.canvas.width, context.canvas.height);
-// 	drawingHistory.splice(0, drawingHistory.length)
-// 	historyPointer = -1;
-// 	saveCanvasState();
-// })
-
 document.getElementById("undo")?.addEventListener('click', undo)
 
 document.getElementById("redo")?.addEventListener('click', redo)
-
-// function saveCanvasState() {
-// 	historyPointer++;
-// 	const canvasState = context?.canvas.toDataURL();
-// 	console.log(drawingHistory)
-// 	drawingHistory.splice(historyPointer);
-// 	drawingHistory.push(canvasState);
-// 	if (historyPointer > maxHistoryLength) {
-// 		drawingHistory.shift();
-// 		historyPointer--;
-// 	}
-// 	console.log('end save ', drawingHistory);
-// }
 
 function undo() {
 	if (objectList.length > 0) {
@@ -199,51 +200,47 @@ function redo() {
 	}
 }
 
-// $('#painter').mousedown(function(e){
-// 	var mouseX = e.pageX - this.offsetLeft;
-// 	var mouseY = e.pageY - this.offsetTop;
-		  
-// 	paint = true;
-// 	addDot(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-// 	redraw();
-//   });
-  
-//   $('#painter').mousemove(function(e){
-// 	if(paint){
-// 	  addDot(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-// 	  redraw();
+const confirmationDialog = document.getElementById('confirmation-dialog');
+const confirmButton = document.getElementById('confirm-btn');
+const cancelButton = document.getElementById('cancel-btn');
+
+confirmButton?.addEventListener('click', () => {
+  // User clicked the Confirm button, handle the confirmation action here
+  // For example, clear the canvas
+  clearCanvas();
+  drawAllObjects();
+  if (confirmationDialog)
+  	confirmationDialog.style.display = 'none';
+});
+
+cancelButton?.addEventListener('click', () => {
+  // User clicked the Cancel button, close the dialog
+  if (confirmationDialog)
+  	confirmationDialog.style.display = 'none';
+});
+
+function showConfirmationDialog() {
+	if (confirmationDialog)
+  		confirmationDialog.style.display = 'block';
+}
+
+// require("dom-to-image")
+// convertCodicon();
+// function convertCodicon() {
+// 	const tempCanvas = document.createElement('canvas');
+// 	const tempCtx = tempCanvas.getContext('2d');
+// 	if (tempCtx) {
+// 		tempCtx.fillStyle = 'black'; // Set the fill color to black or any desired color
+// 		tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+// 		const codiconElement = document.createElement('i');
+// 		codiconElement.className = 'codicon codicon-circle'; // Replace with the desired codicon class name
+// 		tempCtx.font = '24px codicon'; // Set the desired font size and font family for the codicon
+// 		tempCtx.fillStyle = 'white'; // Set the fill color to white or any desired color
+// 		tempCtx.fillText('\uea1b', 0, 24); // Replace '\uea1b' with the Unicode code point of the desired codicon
+// 		// const dataURL = tempCanvas.toDataURL();
+// 		const dataURL = "https://www.google.com/images/srpr/logo4w.png";
+// 		painterElement.style.cursor = `url(${dataURL}), auto`;
+// 		console.log('done');
 // 	}
-//   });
-  
-//   // Mouse Up Event: Marker is off the paper; paint boolean will remember!
-//   $('#painter').mouseup(function(e){
-// 	paint = false;
-//   });
-  
-//   // Mouse Leave Event: If the marker goes off the paper
-//   $('#painter').mouseleave(function(e){
-// 	paint = false;
-//   });
-  
-//   //	user picks a color
-//   $('.picker').on('click', function(e){
-// 	  curColor = $(this).css('background-color');
-//   });
-  
-//   //	user clears data
-//   $('#btnClear').on('click', function(e){
-// 	clickX = new Array();
-// 	  clickY = new Array();
-// 	  clickDrag = new Array();
-// 	  clickColor = new Array();
-// 	  clickSize = new Array();
-// 	// Clears the canvas
-// 	context.clearRect(0, 0, context.canvas.width, context.canvas.height); 
-//   })
-  
-//   //  save data
-//   $('#btnSave').on('click', function(e){
-// 	var canvas = document.getElementById('painter');
-// 	var data = canvas.toDataURL();
-// 	window.open(data);
-//   });
+// }

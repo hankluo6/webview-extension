@@ -92,6 +92,7 @@ canvas {
 
 #painter {
 	background-color: transparent;
+	cursor: crosshair;
 }
 
 #image-upload {
@@ -102,6 +103,11 @@ canvas {
 	height: 0;
 }
 
+#confirmation-dialog {
+	display: none;
+}
+
 /* TODO: remove check 
- 		upload 
-		stroke size */
+		stroke size
+		resize
+		 */

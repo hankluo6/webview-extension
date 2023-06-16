@@ -240,6 +240,11 @@ class CatCodingPanel {
 								</div>
 							</li>
 							<li>
+								<div class="icon" id="clear">
+									<i class="codicon codicon-trash"></i>
+								</div>
+							</li>
+							<li>
 								<div class="icon" id="download">
 									<i class="codicon codicon-arrow-circle-down"></i>
 								</div>
@@ -251,19 +256,6 @@ class CatCodingPanel {
 										<input type="file" accept=".png,.jpeg;" id="image-upload">
 								  	</label>
 								</div>
-							</li>
-							<li>
-								<div class="icon" id="clear">
-									<i class="codicon codicon-trash"></i>
-								</div>
-							</li>
-						</ul>
-						<!-- Settings -->
-						<ul class="horizontal-list">
-							<li>
-								<a>
-									<input id="hex" type="color">
-								</a>
 							</li>
 						</ul>
 						<!-- Undo + Redo -->
@@ -279,8 +271,27 @@ class CatCodingPanel {
 								</div>
 							</li>
 						</ul>
+						<!-- Settings -->
+						<ul class="horizontal-list">
+							<li>
+								<a>
+									<input id="hex" type="color">
+								</a>
+							</li>
+							<li>
+								<input id="stroke" type="range" min="1" max="30" step="1" defaule="15">
+							</li>
+							<li>
+								<label for="stroke" id="stroke-value-label">15</label>
+							</li>
+						</ul>
 					</div>
 				</nav>
+				<div id="confirmation-dialog">
+					<p>Are you sure you want to clear the canvas?</p>
+					<button id="confirm-btn">Confirm</button>
+					<button id="cancel-btn">Cancel</button>
+				</div>
 				<canvas id="painter" width="720" height="400"></canvas>
 
 				<script nonce="${nonce}" src="${scriptUri}"></script>
